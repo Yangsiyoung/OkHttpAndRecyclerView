@@ -19,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
 
     public static final String url = "https://api.github.com/users/From20141002/repos";
     //public static final String url = "http://publicobject.com/helloworld.txt";
+
     private TextView txtResult;
     private GetRepo client = new GetRepo();
     private String result;
