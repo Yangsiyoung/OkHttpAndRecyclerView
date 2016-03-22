@@ -2,12 +2,19 @@ package com.example.yangsiyoung.myokhttptest;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutCompat;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.TextView;
+
+import com.example.yangsiyoung.myokhttptest.list.Comment;
+import com.example.yangsiyoung.myokhttptest.list.CommentAdapter;
 
 import org.json.JSONArray;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -17,18 +24,22 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity {
 
-    public static final String url = "https://api.github.com/users/From20141002/repos";
+    public static final String url = "https://api.github.com/repos/Yangsiyoung/AndroidStudy/comments";
     //public static final String url = "http://publicobject.com/helloworld.txt";
 
     private TextView txtResult;
     private GetRepo client = new GetRepo();
     private String result;
 
+    ArrayList<Comment> commentList = new ArrayList<Comment>();
+    private RecyclerView recyclerViewComment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        txtResult = (TextView) findViewById(R.id.txtResult);
+
+        recyclerViewComment = (RecyclerView) findViewById(R.id.recyclerViewComment);
 
         try {
             client.run(url);
@@ -62,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onResponse(Call call, Response response) throws IOException {
                     //response 내용을 result에 저장
                     result = response.body().string();
-                    Log.d("aaaa", "response 응답은 " + result);
+                    //Log.d("aaaa", "response 응답은 " + result);
 
                     //메인 UI쓰레드로 값을 전달하여 UI 작업
                     MainActivity.this.runOnUiThread(new Runnable() {
@@ -73,11 +84,20 @@ public class MainActivity extends AppCompatActivity {
                                 JSONArray json = new JSONArray(result);
                                 for (int i = 0; i < json.length(); i++) {
 
-                                    myResult += json.getJSONObject(i).getString("name") + "\n";
+                                  //  Comment comment = new Comment(json.getJSONObject(i).getString("body"));
+
+                                   commentList.add(new Comment(json.getJSONObject(i).getString("body")));
+                                    Log.d("aaaa", "add 실행 " + i);
+                                    //Log.d("aaaa", "commentList 리스트는 " + json.getJSONObject(i).getString("body"));
+
+                                    // myResult += json.getJSONObject(i).getString("body") + "\n\n";
 
                                 }
 
-                                txtResult.setText(myResult);
+                                CommentAdapter adapter = new CommentAdapter(commentList);
+                                Log.d("aaaa", "commentList의 첫번째 리스트는 " + commentList.get(0).getComment());
+                                recyclerViewComment.setAdapter(adapter);
+                                recyclerViewComment.setLayoutManager(new LinearLayoutManager(MainActivity.this));
 
                             } catch (Exception e) {
                                 Log.d("error", "Json 에러 내용은 " + e.toString());
@@ -93,6 +113,3 @@ public class MainActivity extends AppCompatActivity {
 
     }
 }
-
-
-
